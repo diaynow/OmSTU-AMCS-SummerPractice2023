@@ -16,7 +16,7 @@ public class SquareEquation
         if (d<0 && !(Math.Abs(d)<eps) ){
             ans=new double[0];
         }
-        else if (d < eps){
+        else if (Math.Abs(d) < eps){
             ans=new double[1];
             ans[0]=-(b+Math.Sign(b)*Math.Sqrt(d))/2;
         }
