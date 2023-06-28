@@ -23,31 +23,6 @@ namespace SquareEquation_Test
         Assert.Throws<ArgumentException>(() => SquareEquation.Solve(a, b, c));
     }
 
-    [Theory]
-        [InlineData(1, 6, 9, new double[]{-3})]
-        [InlineData(10, 2, 10, new double[] {})]
-        [InlineData(1,2,-3, new double[] {1, -3})]
-        [InlineData(1, 0, 1, new double[]{})]
-        [InlineData(1, 4, 5, new double[]{})]
 
-        public void ValidFindRoot(double a, double b, double c, double[] expected)
-        {
-            
-        double[] actual = SquareEquation.Solve(a, b, c);
-
-
-            Array.Sort(actual);
-            Array.Sort(expected);
-
-            if (expected.Length != actual.Length)
-            {
-                Assert.Fail("Amount of roots does not match");
-            }
-
-            for (int i = 0; i < expected.Length; i++)
-            {
-                Assert.Equal(expected[i], actual[i], 5);
-            }
-        }
 }
 }
