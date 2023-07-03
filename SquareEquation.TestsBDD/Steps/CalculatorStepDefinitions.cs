@@ -2,76 +2,98 @@ using SquareEquationLib;
 using TechTalk.SpecFlow;
 using FluentAssertions;
 using System;
+using Xunit;
 
 
-namespace Specflowproj.Steps
+
+namespace SquareEquationLib.TestsBDD.Steps
 {
+
     [Binding]
-    public sealed class SquareEquationStepDefinitions
+    public class StepDefinitions
     {
-       
-       // For additional details on SpecFlow step definitions see https://go.specflow.org/doc-stepdef
-
-       private double[] coef {get; set;}
-       private double[] result {get; set;}
-       private Exception except {get; set;} 
-
-       [Given(@"Квадратное уравнение с коэффициентами \((.*), (.*), (.*)\)")]
-       public void SquareEqGiven(string a, string b, string c)
-       {
-            this.coef = new double[3];
-            string[] coefs = {a, b, c};
-            
-            for(var i = 0; i < 3; i++){
-                if (coefs[i] == "Double.PositiveInfinity")
-                    this.coef[i] = double.PositiveInfinity;
-                else if (coefs[i] == "Double.NegativeInfinity")
-                    this.coef[i] = double.NegativeInfinity;
-                else if (coefs[i] == "NaN")
-                    this.coef[i] = double.NaN;
-                else
-                    this.coef[i] = double.Parse(coefs[i]);
+        private const double eps = 10e-7;
+        private double[] _odds = new double[3];
+        private double[] _roots = new double[0];
+        private Exception _exception = new Exception();
+        [When("вычисляются корни квадратного уравнения")]
+        public void EvaluateEquationRoots()
+        {
+            try
+            {
+                _roots = SquareEquation.Solve(
+                    _odds[0],
+                    _odds[1],
+                    _odds[2]
+                );
             }
-       }
-        
-       [When("вычисляются корни квадратного уравнения")]
-       public void SqEqSolve()
-       {
-           try{
-                this.result = SquareEquationLib.SquareEquation.Solve(coef[0], coef[1], coef[2]);
-           }
-           catch(ArgumentException e){
-                except = e;
-           }
-       }
+            catch (Exception e)
+            {
+                _exception = e;
+            }
+        }
+        [Given(@"Квадратное уравнение с коэффициентами \((.*), (.*), (.*)\)")]
+        public void GiveSqaureEquationCoefficients(string a, string b, string c)
+        {
+            string[] inputOdds = new string[] { a.Split(".")[^1], b.Split(".")[^1], c.Split(".")[^1] };
 
-       [Then(@"квадратное уравнение имеет два корня \((.*), (.*)\) кратности один")]
-       public void ResultTwoRoots(double expect1, double expect2)
-       {
-           double[] expected = {expect1, expect2};
-           Array.Sort(expected);
-           Array.Sort(this.result);
+            for (int i = 0; i < 3; i++)
+            {
+                if (inputOdds[i] == "NegativeInfinity")
+                    _odds[i] = double.NegativeInfinity;
+                else if (inputOdds[i] == "PositiveInfinity")
+                    _odds[i] = double.PositiveInfinity;
+                else if (inputOdds[i] == "NaN")
+                    _odds[i] = double.NaN;
+                else
+                    _odds[i] = double.Parse(inputOdds[i]);
+            }
+        }
+        [Then("выбрасывается исключение ArgumentException")]
+        public void ThrowingArgumentException()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => throw _exception);
+        }
 
-           result.Should().ContainInOrder(expected);
-       }
+        [Then(@"квадратное уравнение имеет один корень (.*) кратности два")]
+        public void SquareEquationHasOneRoot(double x)
+        {
+            double[] expectedRoots = new double[] { x };
 
-       [Then(@"квадратное уравнение имеет один корень (.*) кратности два")]
-       public void ResultOneRoot(double expected)
-       {
-           result[0].Should().Be(expected);
-       }
+            if (_roots.Length != 1)
+            {
+                Assert.True(false, "Message");
+            }
 
-       [Then("множество корней квадратного уравнения пустое")]
-       public void ResultEmpty()
-       {
+            for (int i = 0; i < expectedRoots.Length; i++)
+            {
+                Assert.Equal(_roots[i], expectedRoots[i]);
+            }
+        }
 
-            result.Length.Should().Be(0);
-       }
+        [Then(@"квадратное уравнение имеет два корня \((.*), (.*)\) кратности один")]
+        public void SqaureEquationHasTwoRoots(double x1, double x2)
+        {
+            double[] expectedRoots = new double[] { x1, x2 };
 
-       [Then("выбрасывается исключение ArgumentException")]
-       public void ResultException()
-       {
-            except.Should().BeOfType<System.ArgumentException>();
-       }
+            Array.Sort(expectedRoots);
+            Array.Sort(_roots);
+
+            if (_roots.Length != 2)
+            {
+                Assert.True(false, "Message");
+            }
+
+            for (int i = 0; i < expectedRoots.Length; i++)
+            {
+                Assert.Equal(_roots[i], expectedRoots[i]);
+            }
+        }
+
+        [Then(@"множество корней квадратного уравнения пустое")]
+        public void SqaureEquationHasNoRoots()
+        {
+            Assert.Empty(_roots);
+        }
     }
 }
