@@ -1,58 +1,77 @@
+using SquareEquationLib;
 using TechTalk.SpecFlow;
+using FluentAssertions;
+using System;
 
-namespace SquareEquation.TestsBDD.Steps
+
+namespace Specflowproj.Steps
 {
     [Binding]
-    public sealed class CalculatorStepDefinitions
+    public sealed class SquareEquationStepDefinitions
     {
        
        // For additional details on SpecFlow step definitions see https://go.specflow.org/doc-stepdef
 
-       private readonly ScenarioContext _scenarioContext;
+       private double[] coef {get; set;}
+       private double[] result {get; set;}
+       private Exception except {get; set;} 
 
-       public CalculatorStepDefinitions(ScenarioContext scenarioContext)
+       [Given(@"Квадратное уравнение с коэффициентами \((.*), (.*), (.*)\)")]
+       public void SquareEqGiven(string a, string b, string c)
        {
-           _scenarioContext = scenarioContext;
+            this.coef = new double[3];
+            string[] coefs = {a, b, c};
+            
+            for(var i = 0; i < 3; i++){
+                if (coefs[i] == "Double.PositiveInfinity")
+                    this.coef[i] = double.PositiveInfinity;
+                else if (coefs[i] == "Double.NegativeInfinity")
+                    this.coef[i] = double.NegativeInfinity;
+                else if (coefs[i] == "NaN")
+                    this.coef[i] = double.NaN;
+                else
+                    this.coef[i] = double.Parse(coefs[i]);
+            }
        }
-
-       [Given("the first number is (.*)")]
-       public void GivenTheFirstNumberIs(int number)
-       {
-           //TODO: implement arrange (precondition) logic
-           // For storing and retrieving scenario-specific data see https://go.specflow.org/doc-sharingdata
-           // To use the multiline text or the table argument of the scenario,
-           // additional string/Table parameters can be defined on the step definition
-           // method. 
-
-           _scenarioContext.Pending();
-       }
-
-       [Given("the second number is (.*)")]
-       public void GivenTheSecondNumberIs(int number)
-       {
-           //TODO: implement arrange (precondition) logic
-           // For storing and retrieving scenario-specific data see https://go.specflow.org/doc-sharingdata
-           // To use the multiline text or the table argument of the scenario,
-           // additional string/Table parameters can be defined on the step definition
-           // method. 
-
-           _scenarioContext.Pending();
-        }
         
-       [When("the two numbers are added")]
-       public void WhenTheTwoNumbersAreAdded()
+       [When("вычисляются корни квадратного уравнения")]
+       public void SqEqSolve()
        {
-           //TODO: implement act (action) logic
-
-           _scenarioContext.Pending();
+           try{
+                this.result = SquareEquationLib.SquareEquation.Solve(coef[0], coef[1], coef[2]);
+           }
+           catch(ArgumentException e){
+                except = e;
+           }
        }
 
-       [Then("the result should be (.*)")]
-       public void ThenTheResultShouldBe(int result)
+       [Then(@"квадратное уравнение имеет два корня \((.*), (.*)\) кратности один")]
+       public void ResultTwoRoots(double expect1, double expect2)
        {
-           //TODO: implement assert (verification) logic
+           double[] expected = {expect1, expect2};
+           Array.Sort(expected);
+           Array.Sort(this.result);
 
-           _scenarioContext.Pending();
+           result.Should().ContainInOrder(expected);
+       }
+
+       [Then(@"квадратное уравнение имеет один корень (.*) кратности два")]
+       public void ResultOneRoot(double expected)
+       {
+           result[0].Should().Be(expected);
+       }
+
+       [Then("множество корней квадратного уравнения пустое")]
+       public void ResultEmpty()
+       {
+
+            result.Length.Should().Be(0);
+       }
+
+       [Then("выбрасывается исключение ArgumentException")]
+       public void ResultException()
+       {
+            except.Should().BeOfType<System.ArgumentException>();
        }
     }
 }
