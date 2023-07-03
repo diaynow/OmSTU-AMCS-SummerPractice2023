@@ -2,7 +2,7 @@ name: unit_test
 
 on:
   push:
-    branches: ["unit_tests"]
+    branches: ["bdd_tests"]
 
 jobs:
   build:
@@ -24,10 +24,7 @@ jobs:
 
       - name: Test
         run: ./SquareEquationTest ./SquareEquationLib/bin/Debug/net7.0/SquareEquationLib.dll
-      
-      - name: UnitTest
-        run: dotnet test
 
-      - name: Coverage
+      - name: Unit Test
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
         

@@ -19,5 +19,9 @@
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
   </ItemGroup>
+  
+   <ItemGroup>
+    <ProjectReference Include="..\SquareEquationLib\SquareEquationLib.csproj" />
+  </ItemGroup>
 
 </Project>
