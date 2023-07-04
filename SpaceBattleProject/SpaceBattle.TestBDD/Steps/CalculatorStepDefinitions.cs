@@ -6,8 +6,8 @@ using SpaceBattle;
 
 namespace SpaceBattle.TestsBDD.Steps
 {
-    [Binding]
-    public sealed class SpaceBattle_TestsBDD
+    [Binding, Scope(Feature = "Движение")]
+    public sealed class SpaceBattle_Move
     {
 
         private SpaceShip _spaceShip = new SpaceShip();
@@ -70,6 +70,96 @@ namespace SpaceBattle.TestsBDD.Steps
         {
             _spaceShip.Speed = new double[2] { double.NaN, double.NaN };
         }
-
+    }
+    [Binding, Scope(Feature = "Топливо")]
+    public class SpaceBattle_Fuel
+    {
+        private SpaceShip _spaceShip = new SpaceShip();
+        private Exception _actualException = new Exception();
+        [Given(@"космический корабль имеет топливо в объеме (.*) ед")]
+        public void СapacityFuel(int a)
+        {
+            _spaceShip.SetFuel(a);
+        }
+        [Given(@"имеет скорость расхода топлива при движении (.*) ед")]
+        public void ConsumptionFuel(int a)
+        {
+            _spaceShip.SetConsumptionFuel(a);
+        }
+        [Then(@"новый объем топлива космического корабля равен (.*) ед")]
+        public void NewCapacityFuel(int a)
+        {
+            Assert.Equal(_spaceShip.Fuel, a);
+        }
+        [When(@"происходит прямолинейное равномерное движение без деформации")]
+        public void MovementSpaceShip()
+        {
+            try
+            {
+                _spaceShip.ChangeFuel();
+            }
+            catch (Exception a)
+            {
+                _actualException = a;
+            }
+        }
+        [Then(@"возникает ошибка Exception")]
+        public void ErrorException()
+        {
+            Assert.ThrowsAsync<Exception>(() => throw _actualException);
+        }
+    }
+    [Binding, Scope(Feature = "Поворот")]
+    public class SpaceBattle_Spin
+    {
+        private SpaceShip _spaceShip = new SpaceShip();
+        private Exception _actualException = new Exception();
+        [Given(@"космический корабль имеет угол наклона (.*) град к оси OX")]
+        public void CornerShip(int a)
+        {
+            _spaceShip.SetCorner(a);
+        }
+        [Given(@"имеет мгновенную угловую скорость (.*) град")]
+        public void CornerSpeedShip(int a)
+        {
+            _spaceShip.SetCornerSpeed(a);
+        }
+        [When(@"происходит вращение вокруг собственной оси")]
+        public void ChangeCornerShip()
+        {
+            try
+            {
+                _spaceShip.ChangeCorner();
+            }
+            catch (Exception a)
+            {
+                _actualException = a;
+            }
+        }
+        [Then(@"угол наклона космического корабля к оси OX составляет (.*) град")]
+        public void NewCorner(int a)
+        {
+            Assert.Equal(_spaceShip.Corner, a);
+        }
+        [Given("космический корабль, угол наклона которого невозможно определить")]
+        public void UndefinedCorner()
+        {
+            _spaceShip.SetCorner(361);
+        }
+        [Given("мгновенную угловую скорость невозможно определить")]
+        public void UndefinedSpeedCorner()
+        {
+            _spaceShip.SetCornerSpeed(361);
+        }
+        [Given("невозможно изменить уголд наклона к оси OX космического корабля")]
+        public void CantChangeCorner()
+        {
+            _spaceShip.SetCorner(361);
+        }
+        [Then(@"возникает ошибка Exception")]
+        public void ErrorException()
+        {
+            Assert.ThrowsAsync<Exception>(() => throw _actualException);
+        }
     }
 }
