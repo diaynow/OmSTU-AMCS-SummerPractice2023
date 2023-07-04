@@ -4,26 +4,31 @@ public class SquareEquation
 {
     public static double[] Solve(double a, double b, double c)
     {
-        double[] ans=new double[2];
-        double eps=Math.Pow(10,-9);
-        if (Math.Abs(a)<eps){
-            throw new System.ArgumentException();
+        double eps = Math.Pow(10, -6);
+
+        if (a < eps && -eps < a) throw new System.ArgumentException();
+        if (new[] { a, b, c }.Any(double.IsInfinity)) throw new System.ArgumentException();
+        if (Double.IsNaN(a) || Double.IsNaN(b) || Double.IsNaN(c)) throw new System.ArgumentException();
+
+        double D = b * b - 4 * a * c;
+
+        if (D <= -eps)
+        {
+            double[] result = new double[0];
+            return result;
         }
-        if (double.IsNaN(a) ||  double.IsInfinity(a) || double.IsNaN(b) || double.IsInfinity(b) || double.IsNaN(c) || double.IsInfinity(c)){
-            throw new System.ArgumentException();
+        else if (-eps < D & D < eps)
+        {
+            double x1 = (-b) / 2 * a;
+            double[] result = { x1 };
+            return result;
         }
-        double d=Math.Pow(b,2)-4*a*c;
-        if (d<0 && !(Math.Abs(d)<eps) ){
-            ans=new double[0];
+        else
+        {
+            double x1 = -(b + (b >= 0 ? 1 : -1) * Math.Sqrt(D)) / 2;
+            double x2 = c / x1;
+            double[] result = { x1, x2 };
+            return result;
         }
-        else if (Math.Abs(d) < eps){
-            ans=new double[1];
-            ans[0]=-(b+Math.Sign(b)*Math.Sqrt(d))/2;
-        }
-        else{
-            ans[0]=-(b+Math.Sign(b)*Math.Sqrt(d))/2;
-            ans[1]=c/ans[0];
-        }
-        return ans;
     }
 }
