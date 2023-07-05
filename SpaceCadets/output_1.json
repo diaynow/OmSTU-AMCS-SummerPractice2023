@@ -1,0 +1,12 @@
+{
+  "Response": [
+    {
+      "Name": "Cadet1",
+      "Mark": 5.0
+    },
+    {
+      "Name": "Cadet4",
+      "Mark": 5.0
+    }
+  ]
+}
